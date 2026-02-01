@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISMUN 2026 | Portfolio Reveal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #ff1f1f;
+            --accent: #7a0000;
+            --bg-pattern-1: #000000;
+            --bg-pattern-2: #0a0a0a;
+            --bg-pattern-3: #111111;
+            --glass: rgba(15, 0, 0, 0.7);
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Montserrat', sans-serif; overflow: hidden;
+        }
+
+        /* --- New Geometric Background --- */
+        .bg-container {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: -1;
+            --s: 200px;
+            background: repeating-conic-gradient(
+                  from 30deg,
+                  #0000 0 120deg,
+                  var(--bg-pattern-3) 0 180deg
+                )
+                calc(0.5 * var(--s)) calc(0.5 * var(--s) * 0.577),
+              repeating-conic-gradient(
+                from 30deg,
+                var(--bg-pattern-1) 0 60deg,
+                var(--bg-pattern-2) 0 120deg,
+                var(--bg-pattern-3) 0 180deg
+              );
+            background-size: var(--s) calc(var(--s) * 0.577);
+        }
+
+        /* --- Side SVG Asset Styling --- */
+        .side-asset { position: fixed; top: 50%; transform: translateY(-50%); z-index: 5; opacity: 0.8; }
+        .left-asset { left: 5%; }
+        .right-asset { right: 5%; transform: translateY(-50%) scaleX(-1); }
+        #svg-global { zoom: 1.2; overflow: visible; }
+        .particle { animation: floatUp linear infinite; }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(-40px); opacity: 0; } }
+        #line-v1, #line-v2, #node-server, #particles { animation: bounce-lines 3s ease-in-out infinite alternate; }
+        @keyframes bounce-lines { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        /* --- UI Elements --- */
+        .main-container { height: 100vh; display: flex; justify-content: center; align-items: center; text-align: center; position: relative; z-index: 10; }
+        
+        #login-screen {
+            background: var(--glass); backdrop-filter: blur(25px); padding: 60px; border-radius: 40px; 
+            border: 1px solid rgba(255, 31, 31, 0.3); box-shadow: 0 0 50px rgba(0,0,0,1); width: 420px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        #checkbox { display: none; }
+        .switch {
+            position: relative; width: fit-content; padding: 12px 30px; background-color: rgb(46, 46, 46);
+            border-radius: 50px; z-index: 1; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; gap: 10px; color: white; font-size: 1.1em; font-weight: 600;
+            transition: all 0.3s; margin-top: 40px; border: 1px solid #444;
+        }
+        .switch svg path { fill: white; }
+        #checkbox:checked + .switch {
+            background-color: var(--primary);
+            box-shadow: 0px 0px 40px rgba(255, 31, 31, 0.6);
+            transform: scale(0.95);
+        }
+
+        h1 { letter-spacing: 12px; font-weight: 800; font-size: 2.5rem; margin-bottom: 10px; color: white; }
+        input[type="text"] { background: rgba(0, 0, 0, 0.6); border: 1px solid var(--accent); padding: 18px; border-radius: 15px; color: white; font-size: 1.2rem; width: 90%; text-align: center; outline: none; margin-top: 10px; letter-spacing: 2px; }
+
+        /* --- Radar Loader --- */
+        #loader-container { display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; }
+        .loader {
+            position: relative; width: 150px; height: 150px; border-radius: 50%; border: 1px solid #333; display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .loader span { position: absolute; top: 50%; left: 50%; width: 50%; height: 100%; transform-origin: top left; animation: radar81 2s linear infinite; border-top: 1px dashed #fff; }
+        .loader span::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); transform-origin: top left; transform: rotate(-55deg); filter: blur(30px); }
+        @keyframes radar81 { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #timer-text { margin-top: 20px; font-weight: 800; font-size: 1.5rem; letter-spacing: 5px; color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+
+        /* --- Reveal --- */
+        #reveal-screen { display: none; }
+        .label { font-size: 0.8rem; color: #cc0000; text-transform: uppercase; letter-spacing: 10px; margin-bottom: 15px; }
+        .data { font-size: 3.8rem; font-weight: 800; margin-bottom: 70px; color: white; }
+        .highlight { background: linear-gradient(to bottom, #ffffff 30%, #ff1f1f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 5px 15px rgba(255, 31, 31, 0.6)); }
+    </style>
+</head>
+<body>
+
+    <div class="bg-container"></div>
+
+    <div id="asset-left" class="side-asset left-asset animate__animated animate__fadeInLeft"></div>
+    <div id="asset-right" class="side-asset right-asset animate__animated animate__fadeInRight"></div>
+
+    <div class="main-container">
+        <div id="login-screen" class="animate__animated animate__fadeIn">
+            <p style="color: #999; letter-spacing: 5px; margin-bottom: 15px; font-size: 0.7rem;">PORTFOLIO ALLOTMENTS</p>
+            <h1>ISMUN <span class="highlight">2026</span></h1>
+            <input type="text" id="accessCode" placeholder="DELEGATE KEY" autocomplete="off">
+            
+            <input type="checkbox" id="checkbox" onchange="handleToggle(this)" />
+            <label for="checkbox" class="switch">
+                START
+                <svg class="slider" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V256c0 17.7 14.3 32 32 32s32-14.3 32-32V32zM143.5 120.6c13.6-11.3 15.4-31.5 4.1-45.1s-31.5-15.4-45.1-4.1C49.7 115.4 16 181.8 16 256c0 132.5 107.5 240 240 240s240-107.5 240-240c0-74.2-33.8-140.6-86.6-184.6c-13.6-11.3-33.8-9.4-45.1 4.1s-9.4 33.8 4.1 45.1c38.9 32.3 63.5 81 63.5 135.4c0 97.2-78.8 176-176 176s-176-78.8-176-176c0-54.4 24.7-103.1 63.5-135.4z"></path>
+                </svg>
+            </label>
+        </div>
+
+        <div id="loader-container">
+            <div class="loader"><span></span></div>
+            <div id="timer-text">SCANNING: 5s</div>
+        </div>
+
+        <div id="reveal-screen">
+            <div id="step1" class="animate__animated"><p class="label">Identity Match</p><div class="data" id="disp-name"></div></div>
+            <div id="step2" class="animate__animated" style="opacity: 0;"><p class="label">Committee Allotted</p><div class="data" id="disp-comm" style="font-size: 2.8rem;"></div></div>
+            <div id="step3" class="animate__animated" style="opacity: 0;"><p class="label">Portfolio</p><div class="data highlight" id="disp-port" style="font-size: 5.5rem;"></div></div>
+        </div>
+    </div>
+
+    <template id="node-template">
+        <svg id="svg-global" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 94 136" height="136" width="94">
+            <path stroke="var(--primary)" d="M87.3629 108.433L49.1073 85.3765L6.28392 108.433C5.02255 109.194 5.02255 110.426 6.28392 111.187L44.5395 134.243L87.3629 111.187C88.6243 110.426 88.6243 109.194 87.3629 108.433Z"></path>
+            <path stroke="var(--accent)" d="M91.0928 95.699L49.2899 70.5042L2.49568 95.699L44.2986 123.902L91.0928 98.7074C92.4712 97.8767 92.4712 96.5298 91.0928 95.699Z"></path>
+            <g id="particles"><circle cx="43" cy="30" r="2" fill="var(--primary)" class="particle p1"></circle><circle cx="50" cy="46" r="2" fill="var(--primary)" class="particle p2"></circle></g>
+        </svg>
+    </template>
+
+    <audio id="sound-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="sound-reveal" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        // Database
+        const delegateDatabase = [
+            { code: "kuku12", name: " KOSISI", comm: "UNSC", port: "Russian Federation" },
+            { code: "niku12", name: " NIKOONJ", comm: "DISEC", port: "Israel" },
+        ];
+
+        // Fill side assets
+        const template = document.getElementById('node-template').content;
+        document.getElementById('asset-left').appendChild(template.cloneNode(true));
+        document.getElementById('asset-right').appendChild(template.cloneNode(true));
+
+        function handleToggle(cb) {
+            if (cb.checked) {
+                const codeInput = document.getElementById('accessCode').value.trim().toUpperCase();
+                const delegate = delegateDatabase.find(d => d.code.toUpperCase() === codeInput);
+                
+                if (delegate) {
+                    document.getElementById('sound-click').play();
+                    startLoading(delegate);
+                } else {
+                    alert("INVALID SECURITY KEY");
+                    cb.checked = false;
+                }
+            }
+        }
+
+        function startLoading(data) {
+            document.getElementById('login-screen').classList.add('animate__fadeOut');
+            setTimeout(() => {
+                document.getElementById('login-screen').style.display = 'none';
+                const loader = document.getElementById('loader-container');
+                const timerText = document.getElementById('timer-text');
+                loader.style.display = 'flex';
+                
+                let count = 5;
+                const interval = setInterval(() => {
+                    count--;
+                    timerText.innerText = `SCANNING: ${count}s`;
+                    if (count === 0) {
+                        clearInterval(interval);
+                        loader.style.display = 'none';
+                        showReveal(data);
+                    }
+                }, 1000);
+            }, 500);
+        }
+
+        function showReveal(data) {
+            const reveal = document.getElementById('reveal-screen');
+            reveal.style.display = 'block';
+            document.getElementById('disp-name').innerText = data.name;
+            document.getElementById('disp-comm').innerText = data.comm;
+            document.getElementById('disp-port').innerText = data.port;
+
+            document.getElementById('step1').classList.add('animate__fadeInDown');
+            setTimeout(() => { 
+                document.getElementById('step2').style.opacity = "1";
+                document.getElementById('step2').classList.add('animate__fadeInRight'); 
+            }, 1200);
+            setTimeout(() => { 
+                document.getElementById('sound-reveal').play();
+                document.getElementById('step3').style.opacity = "1";
+                document.getElementById('step3').classList.add('animate__zoomIn');
+                confetti({ particleCount: 200, spread: 80, colors: ['#ff1f1f', '#ffffff'] });
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
